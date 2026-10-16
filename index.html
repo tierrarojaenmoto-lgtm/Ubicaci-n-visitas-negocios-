@@ -57,6 +57,11 @@ nav a{flex:1;text-align:center;text-decoration:none;color:var(--mu);font-size:.7
 nav a b{display:block;font-size:1.3rem;font-weight:400;line-height:1.2}
 .btn,.go{min-height:44px}.chip{min-height:40px}
 .dist{color:var(--ok);font-weight:600}
+#mapov{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+#mapov[hidden]{display:none}
+#map{flex:1;min-height:0}
+.mbar{display:flex;gap:8px;padding:8px}.mbar input{flex:1}.mbar .btn{margin:0;width:auto;padding:0 16px}
+.mfoot{padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd)}
 </style>
 </head>
 <body>
@@ -85,6 +90,7 @@ La clave se guarda solo en tu celular y nunca va dentro de este archivo.</detail
 <label for="zona">Zona</label>
 <input type="text" id="zona" placeholder="Ej: Villa Alta, Puerto Iguazú, Misiones">
 <button class="btn alt" id="ubi">📍 Usar mi ubicación actual</button>
+<button class="btn alt" id="mapb">🗺️ Elegir otro lugar en el mapa</button>
 <label for="rad">Radio alrededor de mi ubicación</label>
 <select id="rad"><option value="500">500 m</option><option value="1000" selected>1 km</option><option value="2000">2 km</option><option value="5000">5 km</option><option value="0">Solo por nombre de zona</option></select>
 <label>Rubros (cada uno es una búsqueda)</label>
@@ -121,11 +127,11 @@ La clave se guarda solo en tu celular y nunca va dentro de este archivo.</detail
 <section id="s4">
 <h2>4. Negocios</h2>
 <input type="text" id="q" placeholder="Buscar por nombre o dirección">
-<label for="fz">Zona</label>
+<label for="fz">Localidad</label>
 <select id="fz"></select>
-<div class="chips"><button class="chip on" id="tel">Solo con teléfono</button></div>
+<div class="chips"><button class="chip on" id="tel">Solo con teléfono</button><button class="chip" id="rf">Solo dentro del radio del punto</button></div>
 <label for="so">Ordenar</label>
-<select id="so"><option value="az">A–Z</option><option value="near">Más cerca de mí primero</option></select>
+<select id="so"><option value="az">A–Z</option><option value="near">Más cerca de mí primero</option><option value="zref">Más cerca del punto elegido</option></select>
 <button class="btn alt" id="refl">📍 Actualizar mi posición</button>
 <div class="cnt" id="cnt"></div>
 <div class="row"><button class="btn alt" id="selv">Seleccionar visibles</button><button class="btn alt" id="clr">Limpiar</button></div>
@@ -135,6 +141,7 @@ La clave se guarda solo en tu celular y nunca va dentro de este archivo.</detail
 <section id="sadd">
 <h2>➕ Agregar un negocio que vi en la calle</h2>
 <div class="mu">Parate frente al negocio y tocá guardar: queda anotado con su ubicación GPS, tenga nombre o no.</div>
+<label for="mloc">Dónde está el negocio</label><select id="mloc"><option value="gps">Donde estoy ahora (GPS)</option><option value="map">En el punto que elegí en el mapa</option></select>
 <label for="mn">Nombre (opcional)</label><input type="text" id="mn" placeholder="Si no tiene, dejá vacío">
 <label for="mr">Rubro</label><select id="mr"></select>
 <label for="mt">Teléfono (opcional)</label><input type="text" id="mt" inputmode="tel" placeholder="Ej: 3757 42-4353">
@@ -155,6 +162,7 @@ La clave se guarda solo en tu celular y nunca va dentro de este archivo.</detail
 <button class="btn alt" id="imp">Cargar copia (JSON)</button>
 <input type="file" id="file" accept=".json" hidden>
 <button class="btn alt" id="rst">Borrar marcas de "enviado" y "visitado"</button>
+<button class="btn alt" id="delv">Borrar los negocios que estoy viendo (según filtros)</button>
 <button class="btn alt" id="del">Borrar toda la lista</button>
 </details>
 </section>
@@ -166,29 +174,36 @@ La clave se guarda solo en tu celular y nunca va dentro de este archivo.</detail
 <label for="tm">Cómo te movés</label>
 <select id="tm"><option value="driving">En auto</option><option value="walking">A pie</option><option value="two-wheeler">En moto</option><option value="bicycling">En bici</option></select>
 <div id="vnx" class="cnt" style="margin-top:10px"></div>
-<button class="btn wa" id="vgo" disabled>Abrir en Google Maps</button>
+<button class="btn wa" id="vgo" disabled>Ir al cliente más cercano (Google Maps)</button>
 <button class="btn" id="vdone" disabled>Ya lo visité · pasar al siguiente</button>
 <button class="btn alt" id="vskip" disabled>Saltar este negocio</button>
 <button class="btn alt" id="vord" disabled>Ordenar por cercanía</button>
-<button class="btn alt" id="vall" disabled>Ruta completa en Maps (hasta 10 paradas)</button>
+<button class="btn alt" id="vall" disabled>Ruta completa en Maps: del más cerca al más lejos (hasta 10)</button>
 </section>
 </main>
+<div id="mapov" hidden>
+<div class="mbar"><input type="text" id="msq" placeholder="Buscar lugar (ej: Wanda, Misiones)"><button class="btn" id="msb">Buscar</button></div>
+<div id="map"></div>
+<div class="mfoot"><div class="mu" id="mst">Tocá el mapa para elegir el punto (podés arrastrar el pin).</div>
+<button class="btn alt" id="mgps">📍 Ir a mi posición</button>
+<div class="row"><button class="btn alt" id="mcx">Cancelar</button><button class="btn wa" id="mok" disabled>Usar este punto</button></div></div>
+</div>
 <nav><a href="#s2"><b>🔎</b>Buscar</a><a href="#s4"><b>📋</b>Lista</a><a href="#sadd"><b>➕</b>Agregar</a><a href="#s5"><b>💬</b>Mensajes</a><a href="#s6"><b>🚶</b>Visitas</a></nav>
 <script>
-const DEF="Hola {nombre}, ¿cómo andan? Soy {yo}. Vendo analgésicos, productos de higiene personal y productos de limpieza para kioscos y despensas.\n\nEn mi página web pueden ver todos los artículos con los precios actualizados, los días de carga y los días de entrega, y hacer sus compras tranquilos:\n{link}\n\nCualquier consulta me escriben por acá. Si no les interesa, avísenme y no les escribo más. ¡Gracias!";
+const DEF="Hola! Soy Gustavo - GP Distribuciones 👋\nVendo productos de higiene personal, limpieza y analgesicos venta libre.\n\n👉 Mirá todo el catálogo con precios actualizados acá:\nhttps://gpdistribuciones.vercel.app/\n\nPodés comprar directo desde la web. Días de carga y entrega todo detallado.\nSi querés que te visite en el negocio, escribime por acá y coordinamos. ¡Gracias!";
 const FM='places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.rating,places.userRatingCount,places.googleMapsUri,places.location,nextPageToken';
 let RUB={'despensa':1,'kiosco':1,'maxikiosco':1,'almacén':1,'mercado':1,'minimercado':1,'despensa 24 horas':1,'autoservicio':0,'supermercado':0,'panadería':0};
-let C={key:'',yo:'',link:'',msg:DEF,used:0,mon:''},DB={},sel=[],vsel=[],F={tel:true},LOC=null,ZL=null;
+let C={key:'',yo:'',link:'',msg:DEF,used:0,mon:''},DB={},sel=[],vsel=[],F={tel:true,rad:false},LOC=null,ZL=null,ZC=null,PICK=null,MAP=null,MK=null;
 const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function save(){try{localStorage.setItem('bn_c',JSON.stringify(C));localStorage.setItem('bn_db',JSON.stringify(DB));localStorage.setItem('bn_r',JSON.stringify(RUB))}catch(e){}}
 function load(){try{const c=JSON.parse(localStorage.getItem('bn_c')||'null');if(c)C=Object.assign(C,c);DB=JSON.parse(localStorage.getItem('bn_db')||'{}');const r=JSON.parse(localStorage.getItem('bn_r')||'null');if(r)RUB=r}catch(e){}
 const m=new Date().toISOString().slice(0,7);if(C.mon!==m){C.mon=m;C.used=0}
-$('key').value=C.key;$('yo').value=C.yo;$('link').value=C.link;$('msg').value=C.msg||DEF;vsel=(C.vs||[]).filter(id=>DB[id])}
+if(C.mv!==2){C.msg=DEF;C.mv=2;save()}$('key').value=C.key;$('yo').value=C.yo;$('link').value=C.link;$('msg').value=C.msg||DEF;vsel=(C.vs||[]).filter(id=>DB[id])}
 function wa(p){let d=p.replace(/\D/g,'');if(d.startsWith('549'))return d;if(d.startsWith('54'))return '549'+d.slice(2);return d}
 function txt(id){return $('msg').value.replace(/\{nombre\}/g,DB[id].n).replace(/\{yo\}/g,$('yo').value.trim()||'[tu nombre]').replace(/\{link\}/g,$('link').value.trim())}
 function url(id){return 'https://wa.me/'+wa(DB[id].p)+'?text='+encodeURIComponent(txt(id))}
-const ready=()=>$('link').value.trim().length>3;
+const ready=()=>!/\{link\}/.test($('msg').value)||$('link').value.trim().length>3;
 function rub(){$('mr').innerHTML=Object.keys(RUB).map(r=>'<option>'+esc(r)+'</option>').join('');$('rub').innerHTML='';Object.keys(RUB).forEach(r=>{const b=document.createElement('button');b.className='chip'+(RUB[r]?' on':'');b.textContent=r;b.onclick=()=>{RUB[r]=RUB[r]?0:1;save();rub()};$('rub').appendChild(b)})}
 function usage(){$('usage').textContent='Búsquedas hechas este mes desde este celular: '+C.used+' (el cupo gratis de Google para teléfonos es aproximadamente 1.000 por mes; confirmalo en tu consola).'}
 async function api(q,pages){let tok=null,out=[];for(let p=0;p<pages;p++){const body={textQuery:q,languageCode:'es',regionCode:'AR',pageSize:20};const R=+$('rad').value;if(ZL&&R)body.locationBias={circle:{center:{latitude:ZL[0],longitude:ZL[1]},radius:R}};if(tok)body.pageToken=tok;
@@ -198,16 +213,20 @@ async function buscar(){const z=$('zona').value.trim();const rs=Object.keys(RUB)
 if(!C.key){$('st').textContent='Pegá primero tu clave de Google (paso 1).';return}
 if(!z||!rs.length){$('st').textContent='Escribí la zona y elegí al menos un rubro.';return}
 if(C.used+rs.length>950&&!confirm('Vas cerca del cupo gratis mensual. ¿Seguir?'))return;
-$('go').disabled=true;let nuevos=0,tot=0;
+ZC=ZC||pzone(z);$('go').disabled=true;let nuevos=0,tot=0,fuera=0;
 try{for(let i=0;i<rs.length;i++){$('st').textContent='Buscando '+(i+1)+' de '+rs.length+': '+rs[i]+'…';
-const ps=await api(rs[i]+' en '+z,1);ps.forEach(p=>{tot++;const id=p.id;const tel=p.internationalPhoneNumber||'';const loc=p.location?[p.location.latitude,p.location.longitude]:null;
+const ps=await api(rs[i]+' en '+z,1);ps.forEach(p=>{tot++;const id=p.id;const tel=p.internationalPhoneNumber||'';const loc=p.location?[p.location.latitude,p.location.longitude]:null;if(ZL&&+$('rad').value&&loc&&hav(ZL,loc)>+$('rad').value){fuera++;return}
 if(!DB[id]){DB[id]={n:(p.displayName&&p.displayName.text)||(rs[i]+' (sin nombre)'),a:p.formattedAddress||'',p:tel,r:p.rating||0,c:p.userRatingCount||0,u:p.googleMapsUri||'',z:z,t:rs[i],s:0,v:0,l:loc};nuevos++}
 else{if(!DB[id].p&&tel)DB[id].p=tel;if(!DB[id].l&&loc)DB[id].l=loc}});save();usage()}
-$('st').textContent='Listo: '+tot+' resultados, '+nuevos+' negocios nuevos agregados.'}
+$('st').textContent='Listo: '+tot+' resultados, '+nuevos+' negocios nuevos agregados.'+(fuera?' ('+fuera+' quedaron fuera del radio y no se guardaron)':'')}
 catch(e){$('st').textContent='Error: '+e.message}
-$('go').disabled=false;save();usage();zonas();list()}
-function zonas(){const zs=[...new Set(Object.values(DB).map(d=>d.z))];const cur=$('fz').value;$('fz').innerHTML='<option value="">Todas las zonas</option>'+zs.map(z=>'<option>'+esc(z)+'</option>').join('');if(zs.includes(cur))$('fz').value=cur}
-function vis(){const q=$('q').value.trim().toLowerCase(),z=$('fz').value;return Object.keys(DB).filter(id=>{const d=DB[id];if(F.tel&&!d.p)return false;if(z&&d.z!==z)return false;if(q&&!(d.n+' '+d.a).toLowerCase().includes(q))return false;return true}).sort((a,b)=>{if($('so').value==='near'&&LOC){const x=dist(DB[a].l),y=dist(DB[b].l);if(x==null&&y==null)return DB[a].n.localeCompare(DB[b].n);if(x==null)return 1;if(y==null)return -1;return x-y}return DB[a].n.localeCompare(DB[b].n)})}
+$('go').disabled=false;save();usage();syncFz()}
+function pcity(a){const p=String(a||'').split(',').map(x=>x.trim()).filter(Boolean);if(p.length&&/^argentina$/i.test(p[p.length-1]))p.pop();if(p.length>=3){return p[p.length-2].replace(/^[A-Z]?\d{4}[A-Z]{0,3}\s+/,'').trim()||null}return null}
+function pzone(z){z=String(z||'').trim();if(!z||/^(cerca de|sin zona|agregado)/i.test(z))return null;const p=z.split(',').map(x=>x.trim()).filter(Boolean);return p.length>=3?p[p.length-2]:(p[0]||null)}
+function city(d){if(d.ci===undefined)d.ci=pcity(d.a)||pzone(d.z)||null;return d.ci}
+function zonas(){const cs=[...new Set(Object.values(DB).map(city).filter(Boolean))].sort((a,b)=>a.localeCompare(b));const cur=$('fz').value;$('fz').innerHTML='<option value="">Todas las localidades</option>'+cs.map(c=>'<option>'+esc(c)+'</option>').join('');if(cs.includes(cur))$('fz').value=cur}
+function syncFz(){zonas();if(ZC&&[...$('fz').options].some(o=>o.value===ZC))$('fz').value=ZC;list()}
+function vis(){const q=$('q').value.trim().toLowerCase(),z=$('fz').value;return Object.keys(DB).filter(id=>{const d=DB[id];if(F.tel&&!d.p)return false;if(z&&city(d)!==z)return false;if(F.rad&&ZL&&+$('rad').value){const dd=hav(ZL,d.l);if(dd==null||dd>+$('rad').value)return false}if(q&&!(d.n+' '+d.a).toLowerCase().includes(q))return false;return true}).sort((a,b)=>{if($('so').value!=='az'&&refPt()){const x=dist(DB[a].l),y=dist(DB[b].l);if(x==null&&y==null)return DB[a].n.localeCompare(DB[b].n);if(x==null)return 1;if(y==null)return -1;return x-y}return DB[a].n.localeCompare(DB[b].n)})}
 function list(){const v=vis();
 $('list').innerHTML=v.map(id=>{const d=DB[id],has=!!d.p,dd=dist(d.l);
 return '<div class="item"><input type="checkbox" data-i="'+id+'"'+(has?'':' disabled')+(sel.includes(id)?' checked':'')+'><div class="info"><div class="nm">'+esc(d.n)+'</div><div class="mu"><span class="tag">'+esc(d.t)+'</span>'+(d.g?'<span class="tag">Gemini · verificar</span>':'')+(d.s?'<span class="tag sent">enviado ✓</span>':'')+(d.v?'<span class="tag sent">visitado ✓</span>':'')+esc(d.a)+'</div><div class="mu">'+(has?esc(d.p):'Sin teléfono cargado')+(d.r?' · ⭐ '+d.r:'')+(dd!=null?' · <span class="dist">a '+fd(dd)+'</span>':'')+'</div>'+(d.x?'<div class="mu">📝 '+esc(d.x)+'</div>':'')+'<div class="vrow"><label class="vchk"><input type="checkbox" data-v="'+id+'"'+(vsel.includes(id)?' checked':'')+'> 📍 Visitar</label><button class="go m" data-n="'+id+'">📝 Nota</button></div></div>'+(has?'<button class="go" data-w="'+id+'">WhatsApp</button>':'<a class="go m" target="_blank" rel="noopener" href="'+esc(d.u)+'">Maps</a>')+'</div>'}).join('')||'<p class="mu">Todavía no hay negocios. Hacé una búsqueda en el paso 2.</p>';
@@ -219,7 +238,7 @@ $('warn').hidden=ok;$('nxt').innerHTML=n?'Siguiente: <b>'+esc(DB[sel[0]].n)+'</b
 $('send').disabled=!n||!ok;$('skip').disabled=!n;vpanel()}
 function mark(id){DB[id].s=1;sel=sel.filter(x=>x!==id);save();list()}
 function open_(id){if(!ready()){$('warn').hidden=false;$('link').focus();return}window.open(url(id),'_blank');mark(id)}
-$('list').addEventListener('change',e=>{const v=e.target.dataset.v;if(v){if(e.target.checked){if(!vsel.includes(v))vsel.push(v)}else vsel=vsel.filter(x=>x!==v);C.vs=vsel;save();vpanel();return}const i=e.target.dataset.i;if(!i)return;if(e.target.checked){if(!sel.includes(i))sel.push(i)}else sel=sel.filter(x=>x!==i);panel()});
+$('list').addEventListener('change',e=>{const v=e.target.dataset.v;if(v){if(e.target.checked){if(!vsel.includes(v))vsel.push(v)}else vsel=vsel.filter(x=>x!==v);orderNow();C.vs=vsel;save();vpanel();return}const i=e.target.dataset.i;if(!i)return;if(e.target.checked){if(!sel.includes(i))sel.push(i)}else sel=sel.filter(x=>x!==i);panel()});
 $('list').addEventListener('click',e=>{const w=e.target.dataset&&e.target.dataset.w,n=e.target.dataset&&e.target.dataset.n;if(w)open_(w);if(n){const x=prompt('Nota para '+DB[n].n,DB[n].x||'');if(x!==null){DB[n].x=x.trim();save();list()}}});
 $('send').onclick=()=>{if(sel.length)open_(sel[0])};
 $('skip').onclick=()=>{sel.shift();list()};
@@ -239,27 +258,43 @@ Object.values(DB).forEach(d=>rows.push([d.n,d.t,d.z,d.a,d.p,d.p?'https://wa.me/'
 $('bak').onclick=()=>dl('copia-negocios.json','application/json',JSON.stringify(DB));
 $('imp').onclick=()=>$('file').click();
 $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);let n=0;for(const k in o){if(!DB[k]){DB[k]=o[k];n++}}save();zonas();list();$('st').textContent='Se cargaron '+n+' negocios nuevos.'}catch(x){$('st').textContent='El archivo no es válido.'}};r.readAsText(f)};
+let WATCH=null;function startWatch(){if(WATCH!==null||!navigator.geolocation)return;WATCH=navigator.geolocation.watchPosition(p=>{LOC=[p.coords.latitude,p.coords.longitude]},()=>{},{enableHighAccuracy:true,maximumAge:5000})}
+document.addEventListener('click',startWatch,{once:true});
 function getLoc(ok,fail){if(!navigator.geolocation){fail&&fail();return}navigator.geolocation.getCurrentPosition(p=>{LOC=[p.coords.latitude,p.coords.longitude];ok&&ok()},()=>{fail&&fail()},{timeout:10000,enableHighAccuracy:true})}
-function dist(l){if(!LOC||!l)return null;const R=6371000,t=Math.PI/180,a=(l[0]-LOC[0])*t,b=(l[1]-LOC[1])*t,x=Math.sin(a/2)**2+Math.cos(LOC[0]*t)*Math.cos(l[0]*t)*Math.sin(b/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function hav(a,b){if(!a||!b)return null;const R=6371000,t=Math.PI/180,da=(b[0]-a[0])*t,db=(b[1]-a[1])*t,x=Math.sin(da/2)**2+Math.cos(a[0]*t)*Math.cos(b[0]*t)*Math.sin(db/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function refPt(){return $('so').value==='zref'?ZL:LOC}
+function dist(l){return hav(refPt(),l)}
 function fd(m){return m<1000?(Math.round(m/10)*10)+' m':(m/1000).toFixed(1)+' km'}
-$('zona').oninput=()=>{ZL=null};
+$('zona').oninput=()=>{ZL=null;ZC=null};
 $('so').onchange=()=>{if($('so').value==='near')getLoc(list,()=>{$('cnt').textContent='No pude obtener tu ubicación.'});else list()};
 $('refl').onclick=()=>getLoc(list,()=>{$('cnt').textContent='No pude obtener tu ubicación.'});
-$('madd').onclick=()=>{$('ms').textContent='Tomando tu ubicación…';getLoc(async()=>{const l=LOC.slice();let ad='Ubicación GPS '+l[0].toFixed(5)+', '+l[1].toFixed(5);
-try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat='+l[0]+'&lon='+l[1]);const j=await r.json();const a=j.address||{};const calle=[a.road,a.house_number].filter(Boolean).join(' ');const bar=a.suburb||a.neighbourhood;if(calle)ad=calle+(bar?', '+bar:'')}catch(e){}
+$('madd').onclick=()=>{$('ms').textContent='Tomando la ubicación…';
+const fail=()=>{$('ms').textContent='No pude obtener tu ubicación. Revisá el permiso de ubicación del navegador.'};
+const go=async l=>{let ad='Ubicación GPS '+l[0].toFixed(5)+', '+l[1].toFixed(5),ci=null;
+try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat='+l[0]+'&lon='+l[1]);const j=await r.json();const a=j.address||{};const calle=[a.road,a.house_number].filter(Boolean).join(' ');ci=a.city||a.town||a.village||a.municipality||null;const bar=a.suburb||a.neighbourhood;if(calle)ad=calle+(bar?', '+bar:'')}catch(e){}
 const rb=$('mr').value,nm=$('mn').value.trim()||(rb+' (sin nombre)');let d=$('mt').value.replace(/\D/g,'').replace(/^0+/,'');if(d.length<8)d='';else if(!d.startsWith('54'))d='54'+d;
 const id='man_'+Date.now().toString(36);
-DB[id]={n:nm,a:ad,p:d?'+'+d:'',r:0,c:0,u:'https://www.google.com/maps/search/?api=1&query='+l[0]+','+l[1],z:$('zona').value.trim()||'Agregado a mano',t:rb,s:0,v:0,l:l,x:$('mx').value.trim()};
-save();zonas();list();$('mn').value='';$('mt').value='';$('mx').value='';$('ms').textContent='Guardado: '+nm+' · '+ad},()=>{$('ms').textContent='No pude obtener tu ubicación. Revisá el permiso de ubicación del navegador.'})};
+DB[id]={n:nm,a:ad,p:d?'+'+d:'',r:0,c:0,u:'https://www.google.com/maps/search/?api=1&query='+l[0]+','+l[1],z:$('zona').value.trim()||'Agregado a mano',t:rb,s:0,v:0,l:l,x:$('mx').value.trim(),ci:ci||undefined};
+save();syncFz();$('mn').value='';$('mt').value='';$('mx').value='';$('ms').textContent='Guardado: '+nm+' · '+ad};
+if($('mloc').value==='map'&&ZL)go(ZL.slice());else getLoc(()=>go(LOC.slice()),fail)};
 function dest(id){const d=DB[id];return (d.l&&!d.g)?d.l[0]+','+d.l[1]:d.n+' '+d.a+(d.g?' '+d.z:'')}
-$('ubi').onclick=()=>{if(!navigator.geolocation){$('st').textContent='Tu navegador no permite usar la ubicación.';return}
-$('st').textContent='Buscando tu ubicación…';
-navigator.geolocation.getCurrentPosition(async p=>{LOC=[p.coords.latitude,p.coords.longitude];ZL=LOC;
-try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat='+LOC[0]+'&lon='+LOC[1]);const j=await r.json();const a=j.address||{};
-const parts=[a.neighbourhood||a.suburb||a.quarter,a.city||a.town||a.village||a.municipality,a.state].filter(Boolean);
-$('zona').value=parts.join(', ')||('cerca de '+LOC[0].toFixed(5)+','+LOC[1].toFixed(5));$('st').textContent='Ubicación detectada. Podés corregir el texto de la zona.'}
-catch(e){$('zona').value='cerca de '+LOC[0].toFixed(5)+','+LOC[1].toFixed(5);$('st').textContent='No pude obtener el nombre del lugar; usé tus coordenadas.'}},
-()=>{$('st').textContent='No pude obtener tu ubicación. Revisá el permiso del navegador.'},{timeout:10000,enableHighAccuracy:true})};
+async function nameZone(ll){try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat='+ll[0]+'&lon='+ll[1]);const j=await r.json();const a=j.address||{};ZC=a.city||a.town||a.village||a.municipality||null;
+const parts=[a.neighbourhood||a.suburb||a.quarter,ZC,a.state].filter(Boolean);$('zona').value=parts.join(', ')||('cerca de '+ll[0].toFixed(5)+','+ll[1].toFixed(5));$('st').textContent='Ubicación elegida: '+$('zona').value+'. Podés corregir el texto.'}
+catch(e){ZC=null;$('zona').value='cerca de '+ll[0].toFixed(5)+','+ll[1].toFixed(5);$('st').textContent='No pude obtener el nombre del lugar; usé coordenadas.'}
+syncFz()}
+$('ubi').onclick=()=>{$('st').textContent='Buscando tu ubicación…';getLoc(()=>{ZL=LOC.slice();nameZone(ZL)},()=>{$('st').textContent='No pude obtener tu ubicación. Revisá el permiso del navegador.'})};
+function loadLeaflet(){return new Promise((ok,no)=>{if(window.L)return ok();const l=document.createElement('link');l.rel='stylesheet';l.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.appendChild(l);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+function setPick(ll){PICK=ll;if(MK)MK.setLatLng(ll);else MK=L.marker(ll,{draggable:true}).addTo(MAP).on('dragend',e=>{const q=e.target.getLatLng();PICK=[q.lat,q.lng];$('mst').textContent='Punto: '+PICK[0].toFixed(5)+', '+PICK[1].toFixed(5)});$('mok').disabled=false;$('mst').textContent='Punto: '+ll[0].toFixed(5)+', '+ll[1].toFixed(5)}
+$('mapb').onclick=async()=>{$('mapov').hidden=false;$('mst').textContent='Cargando mapa…';
+try{await loadLeaflet()}catch(e){$('mst').textContent='No pude cargar el mapa. Revisá tu conexión.';return}
+if(!MAP){MAP=L.map('map').setView(ZL||LOC||[-25.5995,-54.5736],ZL||LOC?15:13);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(MAP);MAP.on('click',e=>setPick([e.latlng.lat,e.latlng.lng]))}
+setTimeout(()=>MAP.invalidateSize(),60);if(ZL){MAP.setView(ZL,15);setPick(ZL)}else $('mst').textContent='Tocá el mapa para elegir el punto (podés arrastrar el pin).'};
+$('mgps').onclick=()=>getLoc(()=>{MAP.setView(LOC,16);setPick(LOC.slice())},()=>{$('mst').textContent='No pude obtener tu ubicación.'});
+$('msb').onclick=async()=>{const q=$('msq').value.trim();if(!q)return;$('mst').textContent='Buscando…';try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q='+encodeURIComponent(q));const j=await r.json();if(!j.length){$('mst').textContent='No encontré ese lugar.';return}const ll=[+j[0].lat,+j[0].lon];MAP.setView(ll,14);setPick(ll)}catch(e){$('mst').textContent='No pude buscar. Revisá la conexión.'}};
+$('mcx').onclick=()=>{$('mapov').hidden=true};
+$('mok').onclick=()=>{if(!PICK)return;ZL=PICK.slice();$('mapov').hidden=true;$('st').textContent='Buscando el nombre del lugar…';nameZone(ZL)};
+$('rf').onclick=e=>{F.rad=!F.rad;e.target.classList.toggle('on',F.rad);list()};
+$('delv').onclick=()=>{const v=vis();if(!v.length)return;if(confirm('¿Borrar '+v.length+' negocios de la lista?')){v.forEach(id=>{delete DB[id]});sel=sel.filter(x=>DB[x]);vsel=vsel.filter(x=>DB[x]);C.vs=vsel;save();zonas();list()}};
 function mkP(){const z=$('zona').value.trim(),rs=Object.keys(RUB).filter(r=>RUB[r]);if(!z){$('gs').textContent='Escribí la zona (o usá tu ubicación) en el paso 2.';return false}
 const R=+$('rad').value;const near=ZL?' (mi ubicación es '+ZL[0].toFixed(5)+', '+ZL[1].toFixed(5)+(R?'; buscá en un radio de '+(R>=1000?R/1000+' km':R+' m')+' alrededor':'')+')':'';
 $('gp').value='Usando Google Maps, buscá negocios REALES de estos rubros: '+rs.join(', ')+'.\nZona: '+z+near+'.\n\nReglas:\n- Máximo 50 negocios, solo los que existan en Google Maps. No inventes ninguno.\n- Incluí también los negocios que NO tienen nombre en Google Maps: como nombre poné el tipo de negocio y la calle, por ejemplo "Kiosco sin nombre - Av. Misiones 300".\n- Si no sabés el teléfono, dejalo vacío ("").\n- Teléfono con código de país, por ejemplo +54 3757 42-4353.\n- Latitud y longitud: ponelas siempre que figuren en Google Maps (sirven para ubicar los negocios sin nombre); si no, vacías.\n\nRespondé ÚNICAMENTE con un bloque de código JSON, sin texto antes ni después, con este formato exacto:\n[{"nombre":"","rubro":"","direccion":"","telefono":"","latitud":"","longitud":""}]';
@@ -270,24 +305,23 @@ function hid(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i
 function pg(t){let arr=[];const a=t.indexOf('['),b=t.lastIndexOf(']');if(a>=0&&b>a){try{arr=JSON.parse(t.slice(a,b+1))}catch(e){}}
 if(!Array.isArray(arr)||!arr.length){arr=[];t.split('\n').forEach(l=>{if(l.indexOf('|')<0||/^[\s|:\-]+$/.test(l))return;const c=l.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(x=>x.trim());if(!c[0]||/^nombre$/i.test(c[0]))return;arr.push({nombre:c[0],rubro:c[1],direccion:c[2],telefono:c[3],latitud:c[4],longitud:c[5]})})}
 return arr}
-$('gimp').onclick=()=>{const arr=pg($('gr').value),z=$('zona').value.trim()||'Sin zona';let n=0,sk=0;
+$('gimp').onclick=()=>{const arr=pg($('gr').value),z=$('zona').value.trim()||'Sin zona';let n=0,sk=0,fu=0;
 arr.forEach(o=>{const nm=String(o.nombre||'').trim();if(!nm)return;const ad=String(o.direccion||'').trim(),id=hid(nm.toLowerCase()+'|'+ad.toLowerCase());if(DB[id]){sk++;return}
 let d=String(o.telefono||'').replace(/\D/g,'').replace(/^0+/,'');if(d.length<8)d='';else if(!d.startsWith('54'))d='54'+d;
-const la=parseFloat(o.latitud),lo=parseFloat(o.longitud);
+const la=parseFloat(o.latitud),lo=parseFloat(o.longitud);if(ZL&&+$('rad').value&&isFinite(la)&&isFinite(lo)&&la&&lo&&hav(ZL,[la,lo])>+$('rad').value){fu++;return}
 DB[id]={n:nm,a:ad,p:d?'+'+d:'',r:0,c:0,u:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(nm+' '+ad+' '+z),z:z,t:String(o.rubro||'').trim()||'—',s:0,v:0,l:(isFinite(la)&&isFinite(lo)&&la&&lo)?[la,lo]:null,g:1};n++});
-save();zonas();list();
-$('gs').textContent=arr.length?('Se agregaron '+n+' negocios nuevos'+(sk?' ('+sk+' ya estaban)':'')+'. Revisalos al llegar: Gemini puede equivocarse.'):'No pude leer la respuesta. Pedile a Gemini que responda solo con el bloque JSON.'};
-function vpanel(){const n=vsel.length;$('vnx').innerHTML=n?'Siguiente: <b>'+esc(DB[vsel[0]].n)+'</b><div class="mu">'+esc(DB[vsel[0]].a)+' · '+n+' paradas en la ruta</div>':'No hay visitas seleccionadas.';['vgo','vdone','vskip','vord','vall'].forEach(k=>$(k).disabled=!n)}
+ZC=ZC||pzone(z);save();syncFz();
+$('gs').textContent=arr.length?('Se agregaron '+n+' negocios nuevos'+(sk?' ('+sk+' ya estaban)':'')+(fu?' · '+fu+' descartados por estar fuera del radio':'')+'. Revisalos al llegar: Gemini puede equivocarse.'):'No pude leer la respuesta. Pedile a Gemini que responda solo con el bloque JSON.'};
+function vpanel(){const n=vsel.length;$('vnx').innerHTML=n?'Siguiente: <b>'+esc(DB[vsel[0]].n)+'</b><div class="mu">'+esc(DB[vsel[0]].a)+(LOC&&DB[vsel[0]].l?' · a '+fd(hav(LOC,DB[vsel[0]].l)):'')+' · '+n+' paradas en la ruta</div>':'No hay visitas seleccionadas.';['vgo','vdone','vskip','vord','vall'].forEach(k=>$(k).disabled=!n)}
 function vsave(){C.vs=vsel;save();list()}
-$('vgo').onclick=()=>{const id=vsel[0];if(id)window.open('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(id))+(/^(gem|man)_/.test(id)?'':'&destination_place_id='+id)+'&travelmode='+$('tm').value,'_blank')};
-$('vdone').onclick=()=>{const id=vsel.shift();if(id)DB[id].v=1;vsave()};
+$('vgo').onclick=()=>{orderNow();vpanel();const id=vsel[0];if(id)window.open('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(id))+(/^(gem|man)_/.test(id)?'':'&destination_place_id='+id)+'&travelmode='+$('tm').value,'_blank')};
+$('vdone').onclick=()=>{const id=vsel.shift();if(id)DB[id].v=1;orderNow();vsave()};
 $('vskip').onclick=()=>{vsel.shift();vsave()};
-$('vselv').onclick=()=>{vis().forEach(id=>{if(!DB[id].v&&!vsel.includes(id))vsel.push(id)});vsave()};
+$('vselv').onclick=()=>{vis().forEach(id=>{if(!DB[id].v&&!vsel.includes(id))vsel.push(id)});orderNow();vsave()};
 $('vclr').onclick=()=>{vsel=[];vsave()};
-$('vall').onclick=()=>{const s=vsel.slice(0,10),last=s.pop();let u='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(last))+'&travelmode='+$('tm').value;if(s.length)u+='&waypoints='+encodeURIComponent(s.map(dest).join('|'));window.open(u,'_blank')};
-function ord(start){const rest=vsel.filter(id=>DB[id].l),no=vsel.filter(id=>!DB[id].l),out=[];let cur=start||(rest.length?DB[rest[0]].l:null);
-while(rest.length){let bi=0,bd=1e9;rest.forEach((id,k)=>{const dd=Math.hypot(DB[id].l[0]-cur[0],DB[id].l[1]-cur[1]);if(dd<bd){bd=dd;bi=k}});const id=rest.splice(bi,1)[0];out.push(id);cur=DB[id].l}
-vsel=out.concat(no);vsave()}
+$('vall').onclick=()=>{orderNow();vpanel();const s=vsel.slice(0,10),last=s.pop();let u='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(last))+'&travelmode='+$('tm').value;if(s.length)u+='&waypoints='+encodeURIComponent(s.map(dest).join('|'));window.open(u,'_blank')};
+function orderNow(o){o=o||LOC||ZL;if(!o||vsel.length<2)return false;const w=vsel.filter(id=>DB[id].l),n=vsel.filter(id=>!DB[id].l);w.sort((a,b)=>hav(o,DB[a].l)-hav(o,DB[b].l));vsel=w.concat(n);C.vs=vsel;return true}
+function ord(start){orderNow(start);vsave()}
 $('vord').onclick=()=>{if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>ord([p.coords.latitude,p.coords.longitude]),()=>ord(null),{timeout:8000});else ord(null)};
 load();rub();usage();zonas();list();
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
