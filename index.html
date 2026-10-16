@@ -178,7 +178,8 @@ La clave se guarda solo en tu celular y nunca va dentro de este archivo.</detail
 <button class="btn" id="vdone" disabled>Ya lo visité · pasar al siguiente</button>
 <button class="btn alt" id="vskip" disabled>Saltar este negocio</button>
 <button class="btn alt" id="vord" disabled>Ordenar por cercanía</button>
-<button class="btn alt" id="vall" disabled>Ruta completa en Maps: del más cerca al más lejos (hasta 10)</button>
+<button class="btn alt" id="vall" disabled>Armar ruta completa por tramos (del más cerca al más lejos)</button>
+<div id="vtr"></div>
 </section>
 </main>
 <div id="mapov" hidden>
@@ -312,14 +313,21 @@ const la=parseFloat(o.latitud),lo=parseFloat(o.longitud);if(ZL&&+$('rad').value&
 DB[id]={n:nm,a:ad,p:d?'+'+d:'',r:0,c:0,u:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(nm+' '+ad+' '+z),z:z,t:String(o.rubro||'').trim()||'—',s:0,v:0,l:(isFinite(la)&&isFinite(lo)&&la&&lo)?[la,lo]:null,g:1};n++});
 ZC=ZC||pzone(z);save();syncFz();
 $('gs').textContent=arr.length?('Se agregaron '+n+' negocios nuevos'+(sk?' ('+sk+' ya estaban)':'')+(fu?' · '+fu+' descartados por estar fuera del radio':'')+'. Revisalos al llegar: Gemini puede equivocarse.'):'No pude leer la respuesta. Pedile a Gemini que responda solo con el bloque JSON.'};
-function vpanel(){const n=vsel.length;$('vnx').innerHTML=n?'Siguiente: <b>'+esc(DB[vsel[0]].n)+'</b><div class="mu">'+esc(DB[vsel[0]].a)+(LOC&&DB[vsel[0]].l?' · a '+fd(hav(LOC,DB[vsel[0]].l)):'')+' · '+n+' paradas en la ruta</div>':'No hay visitas seleccionadas.';['vgo','vdone','vskip','vord','vall'].forEach(k=>$(k).disabled=!n)}
+function vpanel(){const n=vsel.length;$('vtr').innerHTML='';$('vnx').innerHTML=n?'Siguiente: <b>'+esc(DB[vsel[0]].n)+'</b><div class="mu">'+esc(DB[vsel[0]].a)+(LOC&&DB[vsel[0]].l?' · a '+fd(hav(LOC,DB[vsel[0]].l)):'')+' · '+n+' paradas en la ruta</div>':'No hay visitas seleccionadas.';['vgo','vdone','vskip','vord','vall'].forEach(k=>$(k).disabled=!n)}
 function vsave(){C.vs=vsel;save();list()}
 $('vgo').onclick=()=>{orderNow();vpanel();const id=vsel[0];if(id)window.open('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(id))+(/^(gem|man)_/.test(id)?'':'&destination_place_id='+id)+'&travelmode='+$('tm').value,'_blank')};
 $('vdone').onclick=()=>{const id=vsel.shift();if(id)DB[id].v=1;orderNow();vsave()};
 $('vskip').onclick=()=>{vsel.shift();vsave()};
 $('vselv').onclick=()=>{vis().forEach(id=>{if(!DB[id].v&&!vsel.includes(id))vsel.push(id)});orderNow();vsave()};
 $('vclr').onclick=()=>{vsel=[];vsave()};
-$('vall').onclick=()=>{orderNow();vpanel();const s=vsel.slice(0,10),last=s.pop();let u='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(last))+'&travelmode='+$('tm').value;if(s.length)u+='&waypoints='+encodeURIComponent(s.map(dest).join('|'));window.open(u,'_blank')};
+$('vall').onclick=()=>{orderNow();vpanel();const N=4,tm=$('tm').value,box=$('vtr'),nt=Math.ceil(vsel.length/N);
+box.innerHTML='<div class="mu" style="margin-top:8px">Google Maps acepta solo 3 paradas intermedias en el celular, así que la ruta va en tramos de '+N+' clientes. Hacé el tramo 1 y, al terminar, tocá el 2, y así.</div>';
+for(let k=0;k<nt;k++){const st=vsel.slice(k*N,k*N+N),last=st[st.length-1],mid=st.slice(0,-1);
+let u='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(last))+'&travelmode='+tm;
+if(k>0)u+='&origin='+encodeURIComponent(dest(vsel[k*N-1]));
+if(mid.length)u+='&waypoints='+encodeURIComponent(mid.map(dest).join('|'));
+const a=document.createElement('a');a.className='btn alt';a.target='_blank';a.rel='noopener';a.href=u;
+a.textContent='Tramo '+(k+1)+': clientes '+(k*N+1)+' a '+(k*N+st.length)+' ('+DB[st[0]].n+' → '+DB[last].n+')';box.appendChild(a)}};
 function orderNow(o){o=o||LOC||ZL;if(!o||vsel.length<2)return false;const w=vsel.filter(id=>DB[id].l),n=vsel.filter(id=>!DB[id].l);w.sort((a,b)=>hav(o,DB[a].l)-hav(o,DB[b].l));vsel=w.concat(n);C.vs=vsel;return true}
 function ord(start){orderNow(start);vsave()}
 $('vord').onclick=()=>{if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>ord([p.coords.latitude,p.coords.longitude]),()=>ord(null),{timeout:8000});else ord(null)};
