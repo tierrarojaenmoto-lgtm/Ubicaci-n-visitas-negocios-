@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Negocios en la calle</title>
+<meta name="theme-color" content="#1a73e8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#14181f;--mu:#5b6470;--bd:#dfe3e8;--ac:#1a73e8;--acx:#fff;--ok:#128c4a;--bad:#b3261e;--chip:#eaf1fd;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1318;--card:#181e26;--tx:#eef1f5;--mu:#9aa5b3;--bd:#2a323d;--ac:#6ea8fe;--acx:#0b1220;--ok:#4cd68a;--bad:#ff8a80;--chip:#1f2b3d}}
+:root[data-theme="dark"]{--bg:#0f1318;--card:#181e26;--tx:#eef1f5;--mu:#9aa5b3;--bd:#2a323d;--ac:#6ea8fe;--acx:#0b1220;--ok:#4cd68a;--bad:#ff8a80;--chip:#1f2b3d}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:600px;margin:0 auto;padding:14px}
+h1{font-size:1.25rem;margin:0 0 4px}h2{font-size:1rem;margin:0 0 8px}
+.sub{color:var(--mu);margin:0 0 14px;font-size:.9rem}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:.82rem;color:var(--mu);margin:10px 0 4px}
+input[type=text],input[type=url],input[type=password],select,textarea{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+textarea{min-height:140px;resize:vertical;font-size:.92rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{border:1px solid var(--bd);background:var(--bg);color:var(--tx);padding:7px 11px;border-radius:999px;font:inherit;font-size:.85rem;cursor:pointer}
+.chip.on{background:var(--chip);border-color:var(--ac);color:var(--ac);font-weight:600}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;padding:12px;border-radius:10px;border:1px solid var(--ac);background:var(--ac);color:var(--acx);font:inherit;font-weight:600;cursor:pointer;margin-top:8px}
+.btn.alt{background:transparent;color:var(--ac)}
+.btn.wa{background:var(--ok);border-color:var(--ok)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--bd)}
+.item:first-child{border-top:0}
+.item input{width:22px;height:22px;margin-top:2px;flex:0 0 auto}
+.info{flex:1;min-width:0}
+.nm{font-weight:600}
+.mu{color:var(--mu);font-size:.82rem}
+.tag{display:inline-block;font-size:.72rem;padding:2px 7px;border-radius:999px;background:var(--chip);color:var(--ac);margin-right:4px}
+.sent{background:transparent;color:var(--ok);border:1px solid var(--ok)}
+.go{flex:0 0 auto;padding:8px 11px;border-radius:8px;background:var(--ok);color:var(--acx);text-decoration:none;font-weight:600;font-size:.85rem;border:0;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
+.go.m{background:transparent;color:var(--ac);border:1px solid var(--bd)}
+.warn{color:var(--bad);font-size:.85rem;margin-top:6px}
+.cnt{font-weight:600;margin:6px 0}
+details{margin-top:10px;font-size:.88rem}
+summary{cursor:pointer;color:var(--ac);font-weight:600}
+details ol{padding-left:20px;margin:8px 0}
+.vchk{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:.82rem;color:var(--mu)}
+.vchk input{width:18px;height:18px;margin:0}
+.vrow{display:flex;gap:10px;align-items:center;margin-top:6px}.vrow .vchk{margin-top:0}
+body{-webkit-tap-highlight-color:transparent}
+main{padding-bottom:90px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--card);border-top:1px solid var(--bd);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+nav a{flex:1;text-align:center;text-decoration:none;color:var(--mu);font-size:.7rem;padding:4px 0}
+nav a b{display:block;font-size:1.3rem;font-weight:400;line-height:1.2}
+.btn,.go{min-height:44px}.chip{min-height:40px}
+.dist{color:var(--ok);font-weight:600}
+</style>
+</head>
+<body>
+<main>
+<h1>📍 Buscador de negocios + WhatsApp</h1>
+<p class="sub">Buscás por zona, juntás los negocios con teléfono y les mandás tu mensaje. Todo queda guardado en este celular.</p>
+
+<section>
+<h2>1. Clave de Google</h2>
+<input type="password" id="key" placeholder="Pegá tu clave (API key)" autocomplete="off">
+<div class="mu" id="usage"></div>
+<details><summary>¿Cómo consigo la clave?</summary>
+<ol>
+<li>Entrá a <b>console.cloud.google.com</b> con tu cuenta de Google y creá un proyecto.</li>
+<li>Activá la facturación (piden una tarjeta, pero hay un uso mensual gratis por tipo de búsqueda).</li>
+<li>En "APIs y servicios" activá <b>Places API (New)</b>.</li>
+<li>En "Credenciales" creá una <b>clave de API</b>.</li>
+<li>Restringila: solo para Places API y solo para la dirección web donde alojes esta página.</li>
+<li>Poné un presupuesto con alerta (ej. USD 5) y una cuota diaria baja para evitar sorpresas.</li>
+</ol>
+La clave se guarda solo en tu celular y nunca va dentro de este archivo.</details>
+</section>
+
+<section id="s2">
+<h2>2. Buscar una zona</h2>
+<label for="zona">Zona</label>
+<input type="text" id="zona" placeholder="Ej: Villa Alta, Puerto Iguazú, Misiones">
+<button class="btn alt" id="ubi">📍 Usar mi ubicación actual</button>
+<label for="rad">Radio alrededor de mi ubicación</label>
+<select id="rad"><option value="500">500 m</option><option value="1000" selected>1 km</option><option value="2000">2 km</option><option value="5000">5 km</option><option value="0">Solo por nombre de zona</option></select>
+<label>Rubros (cada uno es una búsqueda)</label>
+<div class="chips" id="rub"></div>
+<div class="row"><input type="text" id="nr" placeholder="Agregar otro rubro"><button class="btn alt" id="addr" style="margin-top:0;flex:0 0 90px">Agregar</button></div>
+<button class="btn" id="go">Buscar negocios</button>
+<div class="mu" id="st"></div>
+</section>
+
+<section>
+<h2>2b. Actualizar con Gemini (sin clave de Google)</h2>
+<div class="mu">Usa la zona y los rubros del paso 2. La app arma el pedido, vos lo pegás en Gemini (con Google Maps activado) y traés la respuesta acá.</div>
+<button class="btn" id="gmk">1) Generar pedido para Gemini</button>
+<textarea id="gp" readonly placeholder="Acá aparece el pedido" style="min-height:110px"></textarea>
+<div class="row"><button class="btn alt" id="gcopy">Copiar pedido</button><a class="btn alt" href="https://gemini.google.com/app" target="_blank" rel="noopener">Abrir Gemini</a></div>
+<label for="gr">2) Pegá acá la respuesta de Gemini</label>
+<textarea id="gr" placeholder="Pegá el bloque JSON que te dio Gemini"></textarea>
+<button class="btn wa" id="gimp">3) Importar negocios</button>
+<div class="mu" id="gs"></div>
+<div class="mu">Gemini puede equivocarse o inventar datos. Los negocios importados quedan marcados "Gemini · verificar": confirmalos al llegar.</div>
+</section>
+
+<section>
+<h2>3. Tu mensaje</h2>
+<label for="yo">Tu nombre o el de tu negocio</label>
+<input type="text" id="yo" placeholder="Ej: Juan de Distribuidora X">
+<label for="link">Link de tu página web</label>
+<input type="url" id="link" placeholder="https://...">
+<label for="msg">Mensaje ({nombre}, {yo} y {link} se completan solos)</label>
+<textarea id="msg"></textarea>
+<div class="warn" id="warn" hidden>Falta el link de tu página web.</div>
+</section>
+
+<section id="s4">
+<h2>4. Negocios</h2>
+<input type="text" id="q" placeholder="Buscar por nombre o dirección">
+<label for="fz">Zona</label>
+<select id="fz"></select>
+<div class="chips"><button class="chip on" id="tel">Solo con teléfono</button></div>
+<label for="so">Ordenar</label>
+<select id="so"><option value="az">A–Z</option><option value="near">Más cerca de mí primero</option></select>
+<button class="btn alt" id="refl">📍 Actualizar mi posición</button>
+<div class="cnt" id="cnt"></div>
+<div class="row"><button class="btn alt" id="selv">Seleccionar visibles</button><button class="btn alt" id="clr">Limpiar</button></div>
+<div id="list"></div>
+</section>
+
+<section id="sadd">
+<h2>➕ Agregar un negocio que vi en la calle</h2>
+<div class="mu">Parate frente al negocio y tocá guardar: queda anotado con su ubicación GPS, tenga nombre o no.</div>
+<label for="mn">Nombre (opcional)</label><input type="text" id="mn" placeholder="Si no tiene, dejá vacío">
+<label for="mr">Rubro</label><select id="mr"></select>
+<label for="mt">Teléfono (opcional)</label><input type="text" id="mt" inputmode="tel" placeholder="Ej: 3757 42-4353">
+<label for="mx">Nota (opcional)</label><input type="text" id="mx" placeholder="Ej: abre de tarde, atiende Marta">
+<button class="btn wa" id="madd">Guardar negocio donde estoy</button>
+<div class="mu" id="ms"></div>
+</section>
+
+<section id="s5">
+<h2>5. Enviar</h2>
+<div id="nxt" class="mu">No hay negocios seleccionados.</div>
+<button class="btn wa" id="send" disabled>Abrir WhatsApp con el siguiente</button>
+<button class="btn alt" id="skip" disabled>Saltar este negocio</button>
+<p class="mu">WhatsApp se abre con el mensaje escrito: tocá "enviar" allá y volvé. Mandar de a uno evita bloqueos por spam. Si alguien pide que no le escribas más, no insistas.</p>
+<details><summary>Copia de seguridad y más opciones</summary>
+<button class="btn alt" id="csv">Descargar CSV</button>
+<button class="btn alt" id="bak">Descargar copia (JSON)</button>
+<button class="btn alt" id="imp">Cargar copia (JSON)</button>
+<input type="file" id="file" accept=".json" hidden>
+<button class="btn alt" id="rst">Borrar marcas de "enviado" y "visitado"</button>
+<button class="btn alt" id="del">Borrar toda la lista</button>
+</details>
+</section>
+
+<section id="s6">
+<h2>6. Visitas en persona</h2>
+<div class="mu">Tildá "📍 Visitar" en los negocios que quieras recorrer. Para incluir los que no tienen teléfono, apagá el filtro "Solo con teléfono".</div>
+<div class="row"><button class="btn alt" id="vselv">Marcar visibles</button><button class="btn alt" id="vclr">Limpiar</button></div>
+<label for="tm">Cómo te movés</label>
+<select id="tm"><option value="driving">En auto</option><option value="walking">A pie</option><option value="two-wheeler">En moto</option><option value="bicycling">En bici</option></select>
+<div id="vnx" class="cnt" style="margin-top:10px"></div>
+<button class="btn wa" id="vgo" disabled>Abrir en Google Maps</button>
+<button class="btn" id="vdone" disabled>Ya lo visité · pasar al siguiente</button>
+<button class="btn alt" id="vskip" disabled>Saltar este negocio</button>
+<button class="btn alt" id="vord" disabled>Ordenar por cercanía</button>
+<button class="btn alt" id="vall" disabled>Ruta completa en Maps (hasta 10 paradas)</button>
+</section>
+</main>
+<nav><a href="#s2"><b>🔎</b>Buscar</a><a href="#s4"><b>📋</b>Lista</a><a href="#sadd"><b>➕</b>Agregar</a><a href="#s5"><b>💬</b>Mensajes</a><a href="#s6"><b>🚶</b>Visitas</a></nav>
+<script>
+const DEF="Hola {nombre}, ¿cómo andan? Soy {yo}. Vendo analgésicos, productos de higiene personal y productos de limpieza para kioscos y despensas.\n\nEn mi página web pueden ver todos los artículos con los precios actualizados, los días de carga y los días de entrega, y hacer sus compras tranquilos:\n{link}\n\nCualquier consulta me escriben por acá. Si no les interesa, avísenme y no les escribo más. ¡Gracias!";
+const FM='places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.rating,places.userRatingCount,places.googleMapsUri,places.location,nextPageToken';
+let RUB={'despensa':1,'kiosco':1,'maxikiosco':1,'almacén':1,'mercado':1,'minimercado':1,'despensa 24 horas':1,'autoservicio':0,'supermercado':0,'panadería':0};
+let C={key:'',yo:'',link:'',msg:DEF,used:0,mon:''},DB={},sel=[],vsel=[],F={tel:true},LOC=null,ZL=null;
+const $=i=>document.getElementById(i);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function save(){try{localStorage.setItem('bn_c',JSON.stringify(C));localStorage.setItem('bn_db',JSON.stringify(DB));localStorage.setItem('bn_r',JSON.stringify(RUB))}catch(e){}}
+function load(){try{const c=JSON.parse(localStorage.getItem('bn_c')||'null');if(c)C=Object.assign(C,c);DB=JSON.parse(localStorage.getItem('bn_db')||'{}');const r=JSON.parse(localStorage.getItem('bn_r')||'null');if(r)RUB=r}catch(e){}
+const m=new Date().toISOString().slice(0,7);if(C.mon!==m){C.mon=m;C.used=0}
+$('key').value=C.key;$('yo').value=C.yo;$('link').value=C.link;$('msg').value=C.msg||DEF;vsel=(C.vs||[]).filter(id=>DB[id])}
+function wa(p){let d=p.replace(/\D/g,'');if(d.startsWith('549'))return d;if(d.startsWith('54'))return '549'+d.slice(2);return d}
+function txt(id){return $('msg').value.replace(/\{nombre\}/g,DB[id].n).replace(/\{yo\}/g,$('yo').value.trim()||'[tu nombre]').replace(/\{link\}/g,$('link').value.trim())}
+function url(id){return 'https://wa.me/'+wa(DB[id].p)+'?text='+encodeURIComponent(txt(id))}
+const ready=()=>$('link').value.trim().length>3;
+function rub(){$('mr').innerHTML=Object.keys(RUB).map(r=>'<option>'+esc(r)+'</option>').join('');$('rub').innerHTML='';Object.keys(RUB).forEach(r=>{const b=document.createElement('button');b.className='chip'+(RUB[r]?' on':'');b.textContent=r;b.onclick=()=>{RUB[r]=RUB[r]?0:1;save();rub()};$('rub').appendChild(b)})}
+function usage(){$('usage').textContent='Búsquedas hechas este mes desde este celular: '+C.used+' (el cupo gratis de Google para teléfonos es aproximadamente 1.000 por mes; confirmalo en tu consola).'}
+async function api(q,pages){let tok=null,out=[];for(let p=0;p<pages;p++){const body={textQuery:q,languageCode:'es',regionCode:'AR',pageSize:20};const R=+$('rad').value;if(ZL&&R)body.locationBias={circle:{center:{latitude:ZL[0],longitude:ZL[1]},radius:R}};if(tok)body.pageToken=tok;
+const r=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':C.key,'X-Goog-FieldMask':FM},body:JSON.stringify(body)});
+const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('Error '+r.status));C.used++;out=out.concat(j.places||[]);tok=j.nextPageToken;if(!tok)break}return out}
+async function buscar(){const z=$('zona').value.trim();const rs=Object.keys(RUB).filter(r=>RUB[r]);
+if(!C.key){$('st').textContent='Pegá primero tu clave de Google (paso 1).';return}
+if(!z||!rs.length){$('st').textContent='Escribí la zona y elegí al menos un rubro.';return}
+if(C.used+rs.length>950&&!confirm('Vas cerca del cupo gratis mensual. ¿Seguir?'))return;
+$('go').disabled=true;let nuevos=0,tot=0;
+try{for(let i=0;i<rs.length;i++){$('st').textContent='Buscando '+(i+1)+' de '+rs.length+': '+rs[i]+'…';
+const ps=await api(rs[i]+' en '+z,1);ps.forEach(p=>{tot++;const id=p.id;const tel=p.internationalPhoneNumber||'';const loc=p.location?[p.location.latitude,p.location.longitude]:null;
+if(!DB[id]){DB[id]={n:(p.displayName&&p.displayName.text)||(rs[i]+' (sin nombre)'),a:p.formattedAddress||'',p:tel,r:p.rating||0,c:p.userRatingCount||0,u:p.googleMapsUri||'',z:z,t:rs[i],s:0,v:0,l:loc};nuevos++}
+else{if(!DB[id].p&&tel)DB[id].p=tel;if(!DB[id].l&&loc)DB[id].l=loc}});save();usage()}
+$('st').textContent='Listo: '+tot+' resultados, '+nuevos+' negocios nuevos agregados.'}
+catch(e){$('st').textContent='Error: '+e.message}
+$('go').disabled=false;save();usage();zonas();list()}
+function zonas(){const zs=[...new Set(Object.values(DB).map(d=>d.z))];const cur=$('fz').value;$('fz').innerHTML='<option value="">Todas las zonas</option>'+zs.map(z=>'<option>'+esc(z)+'</option>').join('');if(zs.includes(cur))$('fz').value=cur}
+function vis(){const q=$('q').value.trim().toLowerCase(),z=$('fz').value;return Object.keys(DB).filter(id=>{const d=DB[id];if(F.tel&&!d.p)return false;if(z&&d.z!==z)return false;if(q&&!(d.n+' '+d.a).toLowerCase().includes(q))return false;return true}).sort((a,b)=>{if($('so').value==='near'&&LOC){const x=dist(DB[a].l),y=dist(DB[b].l);if(x==null&&y==null)return DB[a].n.localeCompare(DB[b].n);if(x==null)return 1;if(y==null)return -1;return x-y}return DB[a].n.localeCompare(DB[b].n)})}
+function list(){const v=vis();
+$('list').innerHTML=v.map(id=>{const d=DB[id],has=!!d.p,dd=dist(d.l);
+return '<div class="item"><input type="checkbox" data-i="'+id+'"'+(has?'':' disabled')+(sel.includes(id)?' checked':'')+'><div class="info"><div class="nm">'+esc(d.n)+'</div><div class="mu"><span class="tag">'+esc(d.t)+'</span>'+(d.g?'<span class="tag">Gemini · verificar</span>':'')+(d.s?'<span class="tag sent">enviado ✓</span>':'')+(d.v?'<span class="tag sent">visitado ✓</span>':'')+esc(d.a)+'</div><div class="mu">'+(has?esc(d.p):'Sin teléfono cargado')+(d.r?' · ⭐ '+d.r:'')+(dd!=null?' · <span class="dist">a '+fd(dd)+'</span>':'')+'</div>'+(d.x?'<div class="mu">📝 '+esc(d.x)+'</div>':'')+'<div class="vrow"><label class="vchk"><input type="checkbox" data-v="'+id+'"'+(vsel.includes(id)?' checked':'')+'> 📍 Visitar</label><button class="go m" data-n="'+id+'">📝 Nota</button></div></div>'+(has?'<button class="go" data-w="'+id+'">WhatsApp</button>':'<a class="go m" target="_blank" rel="noopener" href="'+esc(d.u)+'">Maps</a>')+'</div>'}).join('')||'<p class="mu">Todavía no hay negocios. Hacé una búsqueda en el paso 2.</p>';
+panel(v.length)}
+function panel(nv){const n=sel.length,ok=ready();if(nv==null)nv=vis().length;
+const tot=Object.keys(DB).length,env=Object.values(DB).filter(d=>d.s).length;
+$('cnt').textContent=nv+' visibles · '+tot+' guardados · '+n+' seleccionados · '+env+' enviados';
+$('warn').hidden=ok;$('nxt').innerHTML=n?'Siguiente: <b>'+esc(DB[sel[0]].n)+'</b> ('+n+' en cola)':'No hay negocios seleccionados.';
+$('send').disabled=!n||!ok;$('skip').disabled=!n;vpanel()}
+function mark(id){DB[id].s=1;sel=sel.filter(x=>x!==id);save();list()}
+function open_(id){if(!ready()){$('warn').hidden=false;$('link').focus();return}window.open(url(id),'_blank');mark(id)}
+$('list').addEventListener('change',e=>{const v=e.target.dataset.v;if(v){if(e.target.checked){if(!vsel.includes(v))vsel.push(v)}else vsel=vsel.filter(x=>x!==v);C.vs=vsel;save();vpanel();return}const i=e.target.dataset.i;if(!i)return;if(e.target.checked){if(!sel.includes(i))sel.push(i)}else sel=sel.filter(x=>x!==i);panel()});
+$('list').addEventListener('click',e=>{const w=e.target.dataset&&e.target.dataset.w,n=e.target.dataset&&e.target.dataset.n;if(w)open_(w);if(n){const x=prompt('Nota para '+DB[n].n,DB[n].x||'');if(x!==null){DB[n].x=x.trim();save();list()}}});
+$('send').onclick=()=>{if(sel.length)open_(sel[0])};
+$('skip').onclick=()=>{sel.shift();list()};
+$('selv').onclick=()=>{vis().forEach(id=>{if(DB[id].p&&!DB[id].s&&!sel.includes(id))sel.push(id)});list()};
+$('clr').onclick=()=>{sel=[];list()};
+$('tel').onclick=e=>{F.tel=!F.tel;e.target.classList.toggle('on',F.tel);list()};
+$('q').oninput=list;$('fz').onchange=list;
+$('addr').onclick=()=>{const v=$('nr').value.trim().toLowerCase();if(v){RUB[v]=1;$('nr').value='';save();rub()}};
+$('go').onclick=buscar;
+$('key').oninput=()=>{C.key=$('key').value.trim();save()};
+['yo','link','msg'].forEach(k=>$(k).oninput=()=>{C[k]=$(k).value;save();panel()});
+$('rst').onclick=()=>{Object.values(DB).forEach(d=>{d.s=0;d.v=0});save();list()};
+$('del').onclick=()=>{if(confirm('¿Borrar toda la lista guardada?')){DB={};sel=[];vsel=[];C.vs=[];save();zonas();list()}};
+function dl(name,mime,data){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:mime}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+$('csv').onclick=()=>{const q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';const rows=[['Nombre','Rubro','Zona buscada','Dirección','Teléfono','Link WhatsApp','Rating','Reseñas','Maps','Enviado'].map(q).join(',')];
+Object.values(DB).forEach(d=>rows.push([d.n,d.t,d.z,d.a,d.p,d.p?'https://wa.me/'+wa(d.p):'',d.r,d.c,d.u,d.s?'sí':''].map(q).join(',')));dl('negocios.csv','text/csv','\ufeff'+rows.join('\n'))};
+$('bak').onclick=()=>dl('copia-negocios.json','application/json',JSON.stringify(DB));
+$('imp').onclick=()=>$('file').click();
+$('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);let n=0;for(const k in o){if(!DB[k]){DB[k]=o[k];n++}}save();zonas();list();$('st').textContent='Se cargaron '+n+' negocios nuevos.'}catch(x){$('st').textContent='El archivo no es válido.'}};r.readAsText(f)};
+function getLoc(ok,fail){if(!navigator.geolocation){fail&&fail();return}navigator.geolocation.getCurrentPosition(p=>{LOC=[p.coords.latitude,p.coords.longitude];ok&&ok()},()=>{fail&&fail()},{timeout:10000,enableHighAccuracy:true})}
+function dist(l){if(!LOC||!l)return null;const R=6371000,t=Math.PI/180,a=(l[0]-LOC[0])*t,b=(l[1]-LOC[1])*t,x=Math.sin(a/2)**2+Math.cos(LOC[0]*t)*Math.cos(l[0]*t)*Math.sin(b/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function fd(m){return m<1000?(Math.round(m/10)*10)+' m':(m/1000).toFixed(1)+' km'}
+$('zona').oninput=()=>{ZL=null};
+$('so').onchange=()=>{if($('so').value==='near')getLoc(list,()=>{$('cnt').textContent='No pude obtener tu ubicación.'});else list()};
+$('refl').onclick=()=>getLoc(list,()=>{$('cnt').textContent='No pude obtener tu ubicación.'});
+$('madd').onclick=()=>{$('ms').textContent='Tomando tu ubicación…';getLoc(async()=>{const l=LOC.slice();let ad='Ubicación GPS '+l[0].toFixed(5)+', '+l[1].toFixed(5);
+try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat='+l[0]+'&lon='+l[1]);const j=await r.json();const a=j.address||{};const calle=[a.road,a.house_number].filter(Boolean).join(' ');const bar=a.suburb||a.neighbourhood;if(calle)ad=calle+(bar?', '+bar:'')}catch(e){}
+const rb=$('mr').value,nm=$('mn').value.trim()||(rb+' (sin nombre)');let d=$('mt').value.replace(/\D/g,'').replace(/^0+/,'');if(d.length<8)d='';else if(!d.startsWith('54'))d='54'+d;
+const id='man_'+Date.now().toString(36);
+DB[id]={n:nm,a:ad,p:d?'+'+d:'',r:0,c:0,u:'https://www.google.com/maps/search/?api=1&query='+l[0]+','+l[1],z:$('zona').value.trim()||'Agregado a mano',t:rb,s:0,v:0,l:l,x:$('mx').value.trim()};
+save();zonas();list();$('mn').value='';$('mt').value='';$('mx').value='';$('ms').textContent='Guardado: '+nm+' · '+ad},()=>{$('ms').textContent='No pude obtener tu ubicación. Revisá el permiso de ubicación del navegador.'})};
+function dest(id){const d=DB[id];return (d.l&&!d.g)?d.l[0]+','+d.l[1]:d.n+' '+d.a+(d.g?' '+d.z:'')}
+$('ubi').onclick=()=>{if(!navigator.geolocation){$('st').textContent='Tu navegador no permite usar la ubicación.';return}
+$('st').textContent='Buscando tu ubicación…';
+navigator.geolocation.getCurrentPosition(async p=>{LOC=[p.coords.latitude,p.coords.longitude];ZL=LOC;
+try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat='+LOC[0]+'&lon='+LOC[1]);const j=await r.json();const a=j.address||{};
+const parts=[a.neighbourhood||a.suburb||a.quarter,a.city||a.town||a.village||a.municipality,a.state].filter(Boolean);
+$('zona').value=parts.join(', ')||('cerca de '+LOC[0].toFixed(5)+','+LOC[1].toFixed(5));$('st').textContent='Ubicación detectada. Podés corregir el texto de la zona.'}
+catch(e){$('zona').value='cerca de '+LOC[0].toFixed(5)+','+LOC[1].toFixed(5);$('st').textContent='No pude obtener el nombre del lugar; usé tus coordenadas.'}},
+()=>{$('st').textContent='No pude obtener tu ubicación. Revisá el permiso del navegador.'},{timeout:10000,enableHighAccuracy:true})};
+function mkP(){const z=$('zona').value.trim(),rs=Object.keys(RUB).filter(r=>RUB[r]);if(!z){$('gs').textContent='Escribí la zona (o usá tu ubicación) en el paso 2.';return false}
+const R=+$('rad').value;const near=ZL?' (mi ubicación es '+ZL[0].toFixed(5)+', '+ZL[1].toFixed(5)+(R?'; buscá en un radio de '+(R>=1000?R/1000+' km':R+' m')+' alrededor':'')+')':'';
+$('gp').value='Usando Google Maps, buscá negocios REALES de estos rubros: '+rs.join(', ')+'.\nZona: '+z+near+'.\n\nReglas:\n- Máximo 50 negocios, solo los que existan en Google Maps. No inventes ninguno.\n- Incluí también los negocios que NO tienen nombre en Google Maps: como nombre poné el tipo de negocio y la calle, por ejemplo "Kiosco sin nombre - Av. Misiones 300".\n- Si no sabés el teléfono, dejalo vacío ("").\n- Teléfono con código de país, por ejemplo +54 3757 42-4353.\n- Latitud y longitud: ponelas siempre que figuren en Google Maps (sirven para ubicar los negocios sin nombre); si no, vacías.\n\nRespondé ÚNICAMENTE con un bloque de código JSON, sin texto antes ni después, con este formato exacto:\n[{"nombre":"","rubro":"","direccion":"","telefono":"","latitud":"","longitud":""}]';
+$('gs').textContent='Listo. Copiá el pedido y pegalo en Gemini.';return true}
+$('gmk').onclick=mkP;
+$('gcopy').onclick=()=>{if(!$('gp').value&&!mkP())return;$('gp').select();try{navigator.clipboard.writeText($('gp').value)}catch(e){document.execCommand('copy')}$('gs').textContent='Copiado. Abrí Gemini y pegalo.'};
+function hid(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return 'gem_'+(h>>>0).toString(36)}
+function pg(t){let arr=[];const a=t.indexOf('['),b=t.lastIndexOf(']');if(a>=0&&b>a){try{arr=JSON.parse(t.slice(a,b+1))}catch(e){}}
+if(!Array.isArray(arr)||!arr.length){arr=[];t.split('\n').forEach(l=>{if(l.indexOf('|')<0||/^[\s|:\-]+$/.test(l))return;const c=l.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(x=>x.trim());if(!c[0]||/^nombre$/i.test(c[0]))return;arr.push({nombre:c[0],rubro:c[1],direccion:c[2],telefono:c[3],latitud:c[4],longitud:c[5]})})}
+return arr}
+$('gimp').onclick=()=>{const arr=pg($('gr').value),z=$('zona').value.trim()||'Sin zona';let n=0,sk=0;
+arr.forEach(o=>{const nm=String(o.nombre||'').trim();if(!nm)return;const ad=String(o.direccion||'').trim(),id=hid(nm.toLowerCase()+'|'+ad.toLowerCase());if(DB[id]){sk++;return}
+let d=String(o.telefono||'').replace(/\D/g,'').replace(/^0+/,'');if(d.length<8)d='';else if(!d.startsWith('54'))d='54'+d;
+const la=parseFloat(o.latitud),lo=parseFloat(o.longitud);
+DB[id]={n:nm,a:ad,p:d?'+'+d:'',r:0,c:0,u:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(nm+' '+ad+' '+z),z:z,t:String(o.rubro||'').trim()||'—',s:0,v:0,l:(isFinite(la)&&isFinite(lo)&&la&&lo)?[la,lo]:null,g:1};n++});
+save();zonas();list();
+$('gs').textContent=arr.length?('Se agregaron '+n+' negocios nuevos'+(sk?' ('+sk+' ya estaban)':'')+'. Revisalos al llegar: Gemini puede equivocarse.'):'No pude leer la respuesta. Pedile a Gemini que responda solo con el bloque JSON.'};
+function vpanel(){const n=vsel.length;$('vnx').innerHTML=n?'Siguiente: <b>'+esc(DB[vsel[0]].n)+'</b><div class="mu">'+esc(DB[vsel[0]].a)+' · '+n+' paradas en la ruta</div>':'No hay visitas seleccionadas.';['vgo','vdone','vskip','vord','vall'].forEach(k=>$(k).disabled=!n)}
+function vsave(){C.vs=vsel;save();list()}
+$('vgo').onclick=()=>{const id=vsel[0];if(id)window.open('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(id))+(/^(gem|man)_/.test(id)?'':'&destination_place_id='+id)+'&travelmode='+$('tm').value,'_blank')};
+$('vdone').onclick=()=>{const id=vsel.shift();if(id)DB[id].v=1;vsave()};
+$('vskip').onclick=()=>{vsel.shift();vsave()};
+$('vselv').onclick=()=>{vis().forEach(id=>{if(!DB[id].v&&!vsel.includes(id))vsel.push(id)});vsave()};
+$('vclr').onclick=()=>{vsel=[];vsave()};
+$('vall').onclick=()=>{const s=vsel.slice(0,10),last=s.pop();let u='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest(last))+'&travelmode='+$('tm').value;if(s.length)u+='&waypoints='+encodeURIComponent(s.map(dest).join('|'));window.open(u,'_blank')};
+function ord(start){const rest=vsel.filter(id=>DB[id].l),no=vsel.filter(id=>!DB[id].l),out=[];let cur=start||(rest.length?DB[rest[0]].l:null);
+while(rest.length){let bi=0,bd=1e9;rest.forEach((id,k)=>{const dd=Math.hypot(DB[id].l[0]-cur[0],DB[id].l[1]-cur[1]);if(dd<bd){bd=dd;bi=k}});const id=rest.splice(bi,1)[0];out.push(id);cur=DB[id].l}
+vsel=out.concat(no);vsave()}
+$('vord').onclick=()=>{if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>ord([p.coords.latitude,p.coords.longitude]),()=>ord(null),{timeout:8000});else ord(null)};
+load();rub();usage();zonas();list();
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
